@@ -1,0 +1,111 @@
+from fractions import Fraction
+
+
+class Matrix:
+    def __init__(self, data: list[list[float]]):
+        if not all(len(row) == len(data[0]) for row in data):
+            raise ValueError("Inconsistent row lengths")
+
+        self.data = data
+        self.rows = len(data)
+        self.cols = len(data[0]) if data else 0
+
+    def __repr__(self):
+        return f"<Matrix({self.data})>"
+
+    def __str__(self):
+        return '\n'.join(['\t'.join(map(str, row)) for row in self.data])
+
+    def __add__(self, other: 'Matrix') -> 'Matrix':
+        if self.rows != other.rows or self.cols != other.cols:
+            raise ValueError("Different dimensions between the Matrices")
+        result = [
+            [
+                self.data[i][j] + self.data[i][j]
+                for j in range(self.cols)
+            ]
+            for i in range(self.rows)
+        ]
+        return Matrix(result)
+
+    def __mul__(self, other) -> 'Matrix':
+        if isinstance(other, Matrix):
+            if self.cols != other.rows:
+                raise ValueError(
+                    "Number of columns of the first matrix must be equal to the number of rows of the second matrix")
+            result = [
+                [
+                    sum(self.data[i][k] * other.data[k][j] for k in range(self.cols))
+                    for j in range(other.cols)
+                ]
+                for i in range(self.rows)
+            ]
+        elif isinstance(other, (int, float)):
+            result = [
+                [
+                    self.data[i][j] * other
+                    for j in range(self.cols)
+                ]
+                for i in range(self.rows)
+            ]
+        else:
+            raise ValueError(f"Unsupported operand type(s) for *: 'Matrix' and '{other}'")
+        return Matrix(result)
+
+    def transpose(self):
+        result = [
+            [
+                self.data[j][i]
+                for j in range(self.rows)
+            ]
+            for i in range(self.cols)
+        ]
+        return Matrix(result)
+
+
+def laplace_determinant(matrix):
+    if matrix.rows != matrix.cols:
+        raise ValueError("Matrix isn't a Square Matrix")
+    if matrix.rows == 2:
+        result = matrix.data[0][0] * matrix.data[1][1] - matrix.data[0][1] * matrix.data[1][0]
+        return result
+    else:
+        result = 0
+        for j in range(matrix.cols):
+            cofactor = []
+            for row in range(1, matrix.rows):
+                cofactor_row = []
+                for col in range(matrix.cols):
+                    if col != j:
+                        cofactor_row.append(matrix.data[row][col])
+                cofactor.append(cofactor_row)
+            result += ((-1) ** j) * matrix.data[0][j] * laplace_determinant(Matrix(cofactor))
+        return result
+
+
+def determinant(matrix):
+    if matrix.rows != matrix.cols:
+        raise ValueError("Determinant can only be calculated for square matrices.")
+
+    data = [[Fraction(num) for num in row] for row in matrix.data]
+    n = matrix.rows
+
+    for diag in range(n):
+        if data[diag][diag] == 0:
+            for k in range(diag + 1, n):
+                if data[k][diag] != 0:
+                    data[diag], data[k] = data[k], data[diag]
+                    break
+            else:
+                return 0
+
+        for i in range(diag + 1, n):
+            factor = Fraction(data[i][diag], data[diag][diag])
+            for j in range(diag, n):
+                data[i][j] -= factor * data[diag][j]
+
+    det = Fraction(1)
+    for i in range(n):
+        det *= data[i][i]
+
+    return float(det)
