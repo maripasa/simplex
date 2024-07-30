@@ -89,12 +89,14 @@ def determinant(matrix):
 
     data = [[Fraction(num) for num in row] for row in matrix.data]
     n = matrix.rows
+    sign = 1
 
     for diag in range(n):
         if data[diag][diag] == 0:
             for k in range(diag + 1, n):
                 if data[k][diag] != 0:
                     data[diag], data[k] = data[k], data[diag]
+                    sign *= -1
                     break
             else:
                 return 0
@@ -107,5 +109,30 @@ def determinant(matrix):
     det = Fraction(1)
     for i in range(n):
         det *= data[i][i]
+    det *= sign
 
     return float(det)
+
+matrix1 = Matrix([[1, 2, 3, 5],
+                  [4, 5, 6, 7],
+                  [7, 8, 9, 8],
+                  [1, 6, 7, 2]])
+                  
+matrix2 = Matrix([[1, 5, 3, 8],
+                  [2, 9, 4, 7],
+                  [6, 0, 3, 1],
+                  [8, 5, 7, 2]])
+
+matrix3 = Matrix([[2, 7, 4, 1],
+                  [8, 3, 6, 0],
+                  [5, 9, 2, 4],
+                  [8, 1, 7, 3]])
+
+print(determinant(matrix1))
+print(laplace_determinant(matrix1))
+
+print(determinant(matrix2))
+print(laplace_determinant(matrix2))
+
+print(determinant(matrix3))
+print(laplace_determinant(matrix3))
