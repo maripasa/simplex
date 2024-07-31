@@ -1,5 +1,6 @@
 from fractions import Fraction
 from random import randint
+from typing import Any
 
 class Matrix:
     def __init__(self, data: list[list[float]]):
@@ -63,14 +64,50 @@ class Matrix:
         return Matrix(result)
     
     def inverse(self):
+        if self.cols != self.rows:
+            raise ValueError("Matrix isn't square")
+        if determinant(self) == 0:
+            raise ValueError("Matrix determinant = 0")
+            
+        identity_data = identity_matrix(self.rows) 
+        data = [[Fraction(num) for num in row] for row in self.data]
+        identity = [[Fraction(num) for num in row] for row in identity_data.data]
+        n = self.rows
+        for diag in range(n):
+            if data[diag][diag] == 0:
+                for k in range(diag, n):
+                    if data[k][diag] != 0:
+                        data[diag], data[k] = data[k], data[diag]
+                        identity[diag], identity[k] = identity[k], identity[diag]
+                        break
+                else:
+                    return 0
+            
+            if data[diag][diag] != 1:
+                factor = data[diag][diag]
+                for k in range(n):
+                    data[diag][k] /= factor                
+                    identity[diag][k] /= factor
+
+            print(Matrix([[float(num) for num in row] for row in identity]))
+            print("\n")
+            for i in range(n):
+                if i == diag:
+                    continue
+                factor = data[i][diag]
+                for j in range(n):
+                    data[i][j] -= factor * data[diag][j]
+                    identity[i][j] -= factor * identity[diag][j]
+                print(Matrix([[float(num) for num in row] for row in identity]))
+                print("\n")
         
-        data = [[Fraction(num) for num in row] for row in matrix.data]
-                
+        result = [[float(num) for num in row] for row in identity]
+        return Matrix(result)
         
 
 def laplace_determinant(matrix):
     if matrix.rows != matrix.cols:
-        raise ValueError("Matrix isn't a Square Matrix")
+        return 0
     if matrix.rows == 2:
         result = matrix.data[0][0] * matrix.data[1][1] - matrix.data[0][1] * matrix.data[1][0]
         return result
@@ -90,7 +127,7 @@ def laplace_determinant(matrix):
 
 def determinant(matrix):
     if matrix.rows != matrix.cols:
-        raise ValueError("Determinant can only be calculated for square matrices.")
+        return 0
 
     data = [[Fraction(num) for num in row] for row in matrix.data]
     n = matrix.rows
@@ -167,4 +204,6 @@ print(determinant(matrix3))
 print(laplace_determinant(matrix3))
 
 print(random_matrix(4, 4))
-print(identity_matrix(4))
+
+print("inversa:")
+print(matrix1.inverse())
