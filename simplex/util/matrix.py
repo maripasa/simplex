@@ -1,5 +1,5 @@
 from fractions import Fraction
-
+from random import randint
 
 class Matrix:
     def __init__(self, data: list[list[float]]):
@@ -61,7 +61,12 @@ class Matrix:
             for i in range(self.cols)
         ]
         return Matrix(result)
-
+    
+    def inverse(self):
+        
+        data = [[Fraction(num) for num in row] for row in matrix.data]
+                
+        
 
 def laplace_determinant(matrix):
     if matrix.rows != matrix.cols:
@@ -110,9 +115,33 @@ def determinant(matrix):
     for i in range(n):
         det *= data[i][i]
     det *= sign
-
+    print(sign)
     return float(det)
 
+def random_matrix(i, j, min_value=0, max_value=9):
+    result = []
+    for row in range(i):
+        line = []
+        for col in range(j):
+            line.append(randint(min_value, max_value))
+        result.append(line)
+    
+    return Matrix(result)
+
+def identity_matrix(n):
+    result = []
+    for row in range(n):
+        line = []
+        for col in range(n):
+            if col == row:
+                line.append(1)
+            else:
+                line.append(0)
+        result.append(line)
+
+    return Matrix(result)
+        
+    
 matrix1 = Matrix([[1, 2, 3, 5],
                   [4, 5, 6, 7],
                   [7, 8, 9, 8],
@@ -136,3 +165,6 @@ print(laplace_determinant(matrix2))
 
 print(determinant(matrix3))
 print(laplace_determinant(matrix3))
+
+print(random_matrix(4, 4))
+print(identity_matrix(4))
