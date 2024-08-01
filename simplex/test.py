@@ -1,4 +1,3 @@
-from random import randint, seed
+from test.test_matrix import test
 
-seed(2)
-print(randint(1, 10))
+test()

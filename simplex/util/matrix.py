@@ -1,16 +1,26 @@
 from fractions import Fraction
 from random import randint
-from typing import Any
+from typing import Union
 
 class Matrix:
-    def __init__(self, data: list[list[float]]):
-        if not all(len(row) == len(data[0]) for row in data):
+    def __init__(self, pre_data: list[list[Union[Fraction, float]]]):
+        if not all(len(row) == len(pre_data[0]) for row in pre_data):
             raise ValueError("Inconsistent row lengths")
-
-        self.data = data
-        self.rows = len(data)
-        self.cols = len(data[0]) if data else 0
-
+        
+        self.data = []
+        
+        for i in pre_data:
+            row = []
+            for item in i:
+                if isinstance(item, Fraction):
+                    row.append(item)
+                if isinstance(item, float):
+                    row.append(Fraction(item))
+            self.data.append(row)
+            
+        self.rows = len(pre_data)
+        self.cols = len(pre_data[0]) if pre_data else 0
+        
     def __repr__(self):
         return f"<Matrix({self.data})>"
 
@@ -196,11 +206,3 @@ def cramer_solution(A: Matrix, b: Matrix) -> Matrix:
     result = [[float(num) for num in row] for row in x]
     return Matrix(result)
     
-A = Matrix([[2, 1, -1],
-            [3, -2, 4],
-            [1, 1, 1]])
-b = Matrix([[3],
-            [17],
-            [9]])
-
-cramer_solution(A, b)
