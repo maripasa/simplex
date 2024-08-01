@@ -53,7 +53,7 @@ class Matrix:
             raise ValueError(f"Unsupported operand type(s) for *: 'Matrix' and '{other}'")
         return Matrix(result)
 
-    def transpose(self):
+    def transpose(self) -> 'Matrix':
         result = [
             [
                 self.data[j][i]
@@ -63,7 +63,7 @@ class Matrix:
         ]
         return Matrix(result)
     
-    def inverse(self):
+    def inverse(self) -> 'Matrix':
         if self.cols != self.rows:
             raise ValueError("Matrix isn't square")
         if determinant(self) == 0:
@@ -89,8 +89,6 @@ class Matrix:
                     data[diag][k] /= factor                
                     identity[diag][k] /= factor
 
-            print(Matrix([[float(num) for num in row] for row in identity]))
-            print("\n")
             for i in range(n):
                 if i == diag:
                     continue
@@ -98,14 +96,12 @@ class Matrix:
                 for j in range(n):
                     data[i][j] -= factor * data[diag][j]
                     identity[i][j] -= factor * identity[diag][j]
-                print(Matrix([[float(num) for num in row] for row in identity]))
-                print("\n")
         
         result = [[float(num) for num in row] for row in identity]
         return Matrix(result)
         
 
-def laplace_determinant(matrix):
+def laplace_determinant(matrix: Matrix) -> float:
     if matrix.rows != matrix.cols:
         return 0
     if matrix.rows == 2:
@@ -125,7 +121,7 @@ def laplace_determinant(matrix):
         return result
 
 
-def determinant(matrix):
+def determinant(matrix: Matrix) -> float:
     if matrix.rows != matrix.cols:
         return 0
 
@@ -152,10 +148,9 @@ def determinant(matrix):
     for i in range(n):
         det *= data[i][i]
     det *= sign
-    print(sign)
     return float(det)
 
-def random_matrix(i, j, min_value=0, max_value=9):
+def randint_matrix(i: int, j: int, min_value: float = 0, max_value: float = 9) -> Matrix:
     result = []
     for row in range(i):
         line = []
@@ -165,7 +160,7 @@ def random_matrix(i, j, min_value=0, max_value=9):
     
     return Matrix(result)
 
-def identity_matrix(n):
+def identity_matrix(n: int) -> Matrix:
     result = []
     for row in range(n):
         line = []
@@ -178,32 +173,34 @@ def identity_matrix(n):
 
     return Matrix(result)
         
+def cramer_solution(A: Matrix, b: Matrix) -> Matrix:
+    if A.rows != A.cols:
+        ValueError("Invalid A: Matrix isn't square")
+    if determinant(A) == 0:
+        ValueError("Invalid A: Matrix has many or no solutions (|A| = 0)")
+    if b.rows != A.rows:
+        ValueError("Invalid b: b has less items than A has rows.")
+    if b.cols != 1:
+        ValueError("Invalid b: b has multiple columns.")
+        
+    A_data = [[Fraction(num) for num in row] for row in A.data]
+    b_data = [[Fraction(num) for num in row] for row in b.data]
+    x = []
+    A_det = determinant(A)
+    for j in range(A.cols):
+        aux = A_data
+        for i in range(A.rows):
+            aux[i][j] = b_data[i][0]
+        x.append([Fraction(determinant(Matrix(aux)), A_det)])
     
-matrix1 = Matrix([[1, 2, 3, 5],
-                  [4, 5, 6, 7],
-                  [7, 8, 9, 8],
-                  [1, 6, 7, 2]])
-                  
-matrix2 = Matrix([[1, 5, 3, 8],
-                  [2, 9, 4, 7],
-                  [6, 0, 3, 1],
-                  [8, 5, 7, 2]])
+    result = [[float(num) for num in row] for row in x]
+    return Matrix(result)
+    
+A = Matrix([[2, 1, -1],
+            [3, -2, 4],
+            [1, 1, 1]])
+b = Matrix([[3],
+            [17],
+            [9]])
 
-matrix3 = Matrix([[2, 7, 4, 1],
-                  [8, 3, 6, 0],
-                  [5, 9, 2, 4],
-                  [8, 1, 7, 3]])
-
-print(determinant(matrix1))
-print(laplace_determinant(matrix1))
-
-print(determinant(matrix2))
-print(laplace_determinant(matrix2))
-
-print(determinant(matrix3))
-print(laplace_determinant(matrix3))
-
-print(random_matrix(4, 4))
-
-print("inversa:")
-print(matrix1.inverse())
+cramer_solution(A, b)
