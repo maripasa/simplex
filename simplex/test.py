@@ -1,3 +1,7 @@
-from test.test_matrix import test
+list1 = [1,5,6]
+list2 = list1
 
-test()
+list2.pop()
+
+print(list1)
+print(list2)
