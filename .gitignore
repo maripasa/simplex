@@ -131,8 +131,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-simplex/util/
 lib64/
+lib/
 parts/
 sdist/
 var/
